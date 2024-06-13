@@ -1,0 +1,19 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: "block-details-ratings-communication"
+  namespace: dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: DENY
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/dev/sa/ratings-service-account"]
+    to:
+    - operation:
+        methods: ["GET"]

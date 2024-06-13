@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratings-deployment
+  namespace: dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  selector:
+    matchLabels:
+      app: ratings
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ratings
+    spec:
+      serviceAccountName: ratings-service-account
+      containers:
+      - name: ratings
+        image: apoorva6777/ratings-test:latest
+        ports:
+        - containerPort: 3002
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3002
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 2   
+        resources:
+          limits:
+            cpu: "256m" 
+            memory: "512Mi"
+          requests:
+            cpu: "256m"
+            memory: "512Mi"
+      tolerations:
+      - key: "spotInstance"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/capacityType
+                operator: In
+                values:
+                - SPOT
+

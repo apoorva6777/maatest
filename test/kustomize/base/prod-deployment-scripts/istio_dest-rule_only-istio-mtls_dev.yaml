@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: only-istio-mtls
+  namespace: dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+spec:
+  host: "*.dev.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL   

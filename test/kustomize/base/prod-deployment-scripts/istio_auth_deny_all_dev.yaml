@@ -1,0 +1,9 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+ name: allow-nothing-dev
+ namespace: dev
+ annotations:
+    argocd.argoproj.io/sync-wave: "7"
+spec:
+  {}

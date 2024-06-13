@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: details-deployment
+  namespace: dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  selector:
+    matchLabels:
+      app: details
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: details
+    spec:
+      serviceAccountName: details-service-account
+      containers:
+      - name: details
+        image: apoorva6777/details-test:latest
+        ports:
+        - containerPort: 3001
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 2  
+        resources:
+          limits:
+            cpu: "256m" 
+            memory: "512Mi"
+          requests:
+            cpu: "256m"
+            memory: "512Mi"
+      tolerations:
+      - key: "spotInstance"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: eks.amazonaws.com/capacityType
+                operator: In
+                values:
+                - SPOT
+
+
